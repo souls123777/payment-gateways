@@ -38,6 +38,35 @@ php bin/console app:payment:pay crypto 100        # ошибка ввода: н�
 | 1 | платёж отклонён шлюзом или для способа оплаты не нашлось шлюза |
 | 2 | некорректный ввод (неизвестный способ или валюта, сумма не целая или не положительная) |
 
+
+Пример вывода:
+
+```
+$ php bin/console app:payment:pay card 150000 RUB
+ -------- -------------
+  Method   card
+  Amount   1500.00 RUB
+  Status   approved
+ -------- -------------
+
+ [OK] Payment approved.
+
+$ php bin/console app:payment:pay wallet 2000000      # код выхода 1
+ -------- ----------------
+  Method   wallet
+  Amount   20000.00 RUB
+  Status   declined
+  Reason   limit_exceeded
+ -------- ----------------
+
+ [WARNING] Payment declined.
+
+$ php bin/console app:payment:pay crypto 100          # код выхода 2
+ [ERROR] Unknown payment method "crypto". Supported: card, sbp, wallet.
+```
+
+**Отрицательные суммы.** Symfony Console принимает аргумент с ведущим `-` за опцию, поэтому `app:payment:pay sbp -100 RUB` завершится ошибкой разбора аргументов (код 1). Отрицательная сумма всё равно недопустима. Проверить нашу валидацию можно так: `php bin/console app:payment:pay -- sbp -100 RUB` (после `--` всё считается аргументами), результат: ошибка и код 2.
+
 Поведение шлюзов-заглушек:
 
 | Шлюз | Лимит одного платежа | Валюты |
